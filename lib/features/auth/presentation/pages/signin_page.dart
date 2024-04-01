@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blog_app/core/common/widget/loader.dart';
 import 'package:flutter_blog_app/core/theme/app_pallete.dart';

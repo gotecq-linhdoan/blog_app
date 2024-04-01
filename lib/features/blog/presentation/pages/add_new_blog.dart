@@ -73,8 +73,8 @@ class _NewBlogPageState extends State<NewBlogPage> {
         listener: (context, state) {
           if (state is BlogFailure) {
             showSnackBar(context, state.error);
-          } else if (state is BlogSuccess) {
-            context.go('/');
+          } else if (state is BlogUploadSuccess) {
+            context.pushReplacement('/');
           }
         },
         builder: (context, state) {

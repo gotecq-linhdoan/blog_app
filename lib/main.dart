@@ -5,9 +5,11 @@ import 'package:flutter_blog_app/core/theme/theme.dart';
 import 'package:flutter_blog_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter_blog_app/features/auth/presentation/pages/signin_page.dart';
 import 'package:flutter_blog_app/features/auth/presentation/pages/signup_page.dart';
+import 'package:flutter_blog_app/features/blog/domain/entity/blog.dart';
 import 'package:flutter_blog_app/features/blog/presentation/bloc/blog_bloc.dart';
 import 'package:flutter_blog_app/features/blog/presentation/pages/add_new_blog.dart';
 import 'package:flutter_blog_app/features/blog/presentation/pages/blog_page.dart';
+import 'package:flutter_blog_app/features/blog/presentation/pages/blog_viewer_page.dart';
 import 'package:flutter_blog_app/init_dependencies.dart';
 import 'package:go_router/go_router.dart';
 
@@ -58,6 +60,13 @@ final GoRouter _router = GoRouter(
           path: 'addblog',
           builder: (BuildContext context, GoRouterState state) {
             return const NewBlogPage();
+          },
+        ),
+        GoRoute(
+          path: 'blogdetail',
+          builder: (BuildContext context, GoRouterState state) {
+            final Blog blog = state.extra as Blog;
+            return BlogViewerPage(blog: blog);
           },
         ),
       ],
