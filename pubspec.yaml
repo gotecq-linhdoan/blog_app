@@ -47,6 +47,8 @@ dependencies:
   material_design_icons_flutter: ^7.0.7296
   flutter_quill: ^9.3.5
   keyboard_actions: ^4.2.0
+  vsc_quill_delta_to_html: ^1.0.4
+  flutter_widget_from_html: ^0.14.11
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
@@ -61,6 +63,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
+
+dependency_overrides:
+
+  flutter_quill:
+    git:
+      url: https://github.com/singerdmx/flutter-quill
+      ref: master
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

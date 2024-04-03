@@ -8,12 +8,32 @@ import 'package:flutter_blog_app/core/util/format_date.dart';
 import 'package:flutter_blog_app/core/util/show_snackbar.dart';
 import 'package:flutter_blog_app/features/presentation/blog_bloc/blog_bloc.dart';
 import 'package:flutter_blog_app/foundation/entities/blog_entity/blog.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-class BlogViewerPage extends StatelessWidget {
+class BlogViewerPage extends StatefulWidget {
   final Blog blog;
   const BlogViewerPage({super.key, required this.blog});
+
+  @override
+  State<BlogViewerPage> createState() => _BlogViewerPageState();
+}
+
+class _BlogViewerPageState extends State<BlogViewerPage> {
+  final QuillController _controller = QuillController.basic();
+  @override
+  void initState() {
+    super.initState();
+    _controller.document = Document.fromHtml(widget.blog.content);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +42,7 @@ class BlogViewerPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              context.read<BlogBloc>().add(BlogDelete(blogId: blog.id));
+              context.read<BlogBloc>().add(BlogDelete(blogId: widget.blog.id));
             },
             icon: Icon(MdiIcons.delete),
           ),
@@ -48,7 +68,7 @@ class BlogViewerPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      blog.title,
+                      widget.blog.title,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -58,7 +78,7 @@ class BlogViewerPage extends StatelessWidget {
                       height: 20,
                     ),
                     Text(
-                      'By ${blog.posterName}',
+                      'By ${widget.blog.posterName}',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -68,7 +88,7 @@ class BlogViewerPage extends StatelessWidget {
                       height: 5,
                     ),
                     Text(
-                      '${formatDateBydMMMYYYY(blog.updatedAt)} - ${calculateReadingTime(blog.content)} min',
+                      '${formatDateBydMMMYYYY(widget.blog.updatedAt)} - ${calculateReadingTime(widget.blog.content)} min',
                       style: const TextStyle(
                         fontSize: 16,
                         color: AppPallete.greyColor,
@@ -81,7 +101,7 @@ class BlogViewerPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                       child: CachedNetworkImage(
                         height: 200,
-                        imageUrl: blog.imageUrl,
+                        imageUrl: widget.blog.imageUrl,
                         imageBuilder: (context, imageProvider) {
                           return Container(
                             decoration: BoxDecoration(
@@ -102,13 +122,12 @@ class BlogViewerPage extends StatelessWidget {
                     const SizedBox(
                       height: 20,
                     ),
-                    Text(
-                      blog.content,
-                      style: const TextStyle(
+                    HtmlWidget(
+                      widget.blog.content,
+                      textStyle: const TextStyle(
                         fontSize: 16,
-                        height: 2,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

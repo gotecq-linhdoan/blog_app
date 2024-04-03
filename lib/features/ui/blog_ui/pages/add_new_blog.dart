@@ -1,18 +1,21 @@
 import 'dart:io';
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blog_app/core/common/cubit/app_user/app_user_cubit.dart';
 import 'package:flutter_blog_app/core/common/widget/loader.dart';
 import 'package:flutter_blog_app/core/theme/app_pallete.dart';
+import 'package:flutter_blog_app/core/util/keyboard_action.dart';
 import 'package:flutter_blog_app/core/util/pick_image.dart';
 import 'package:flutter_blog_app/core/util/show_snackbar.dart';
 import 'package:flutter_blog_app/features/presentation/blog_bloc/blog_bloc.dart';
 import 'package:flutter_blog_app/features/ui/blog_ui/widgets/blog_editor.dart';
+import 'package:flutter_blog_app/features/ui/blog_ui/widgets/rich_text.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
 class NewBlogPage extends StatefulWidget {
   const NewBlogPage({super.key});
@@ -24,59 +27,8 @@ class NewBlogPage extends StatefulWidget {
 class _NewBlogPageState extends State<NewBlogPage> {
   final titleController = TextEditingController();
   final QuillController _controller = QuillController.basic();
-  final FocusNode _nodeText1 = FocusNode();
+  final FocusNode _textNode = FocusNode();
   final formKey = GlobalKey<FormState>();
-
-  KeyboardActionsConfig _buildConfig(BuildContext context) {
-    return KeyboardActionsConfig(
-      keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
-      nextFocus: true,
-      keyboardBarColor: const Color.fromARGB(255, 0, 0, 0),
-      actions: [
-        KeyboardActionsItem(
-            focusNode: _nodeText1,
-            displayActionBar: true,
-            displayArrows: false,
-            toolbarAlignment: MainAxisAlignment.center,
-            toolbarButtons: [
-              (node) {
-                return QuillToolbar.simple(
-                  configurations: QuillSimpleToolbarConfigurations(
-                    controller: _controller,
-                    showFontFamily: false,
-                    showFontSize: false,
-                    showStrikeThrough: false,
-                    showInlineCode: false,
-                    showColorButton: false,
-                    showClearFormat: false,
-                    showAlignmentButtons: false,
-                    showLeftAlignment: false,
-                    showCenterAlignment: false,
-                    showRightAlignment: false,
-                    showJustifyAlignment: false,
-                    showHeaderStyle: false,
-                    showListNumbers: false,
-                    showListBullets: false,
-                    showListCheck: false,
-                    showQuote: false,
-                    showDividers: false,
-                    showIndent: false,
-                    showLink: false,
-                    showUndo: false,
-                    showRedo: false,
-                    showDirection: false,
-                    showSubscript: false,
-                    showSuperscript: false,
-                    sharedConfigurations: const QuillSharedConfigurations(
-                      locale: Locale('de'),
-                    ),
-                  ),
-                );
-              }
-            ]),
-      ],
-    );
-  }
 
   File? image;
   List<String> selectedTopics = [];
@@ -96,6 +48,29 @@ class _NewBlogPageState extends State<NewBlogPage> {
     _controller.dispose();
   }
 
+  List<dynamic> deltaHexColorToRGB({required List<dynamic> deltaJson}) {
+    for (var d in deltaJson) {
+      if (d is Map<String, dynamic> &&
+          d.containsKey('attributes') &&
+          d['attributes'] is Map<String, dynamic>) {
+        var attributes = d['attributes'];
+        attributes.forEach((key, value) {
+          if (value is String && value.startsWith('#FF')) {
+            try {
+              String hexColor = value.replaceAll('#', '0x');
+              var color = Color(int.parse(hexColor));
+              attributes[key] =
+                  'rgb(${color.red},${color.green},${color.blue})';
+            } catch (e) {
+              attributes[key] = value;
+            }
+          }
+        });
+      }
+    }
+    return deltaJson;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,12 +85,17 @@ class _NewBlogPageState extends State<NewBlogPage> {
                     (context.read<AppUserCubit>().state as AppUserLoggedIn)
                         .user
                         .id;
+                final deltaJson = deltaHexColorToRGB(
+                    deltaJson: _controller.document.toDelta().toJson());
+                final converter = QuillDeltaToHtmlConverter(
+                    List.castFrom(deltaJson),
+                    ConverterOptions.forEmail()
+                      ..converterOptions.inlineStylesFlag = true);
                 context.read<BlogBloc>().add(
                       BlogUpload(
                           posterId: posterId,
                           title: titleController.text.trim(),
-                          content:
-                              _controller.plainTextEditingValue.text.trim(),
+                          content: converter.convert(),
                           image: image!,
                           topics: selectedTopics),
                     );
@@ -138,7 +118,11 @@ class _NewBlogPageState extends State<NewBlogPage> {
             return const Loader();
           }
           return KeyboardActions(
-            config: _buildConfig(context),
+            config: defaultCustomKeyboardConfig(
+              context,
+              _controller,
+              _textNode,
+            ),
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -168,10 +152,10 @@ class _NewBlogPageState extends State<NewBlogPage> {
                                 radius: const Radius.circular(10),
                                 borderType: BorderType.RRect,
                                 strokeCap: StrokeCap.round,
-                                child: Container(
+                                child: const SizedBox(
                                   height: 150,
                                   width: double.infinity,
-                                  child: const Column(
+                                  child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
@@ -240,56 +224,9 @@ class _NewBlogPageState extends State<NewBlogPage> {
                       const SizedBox(
                         height: 15,
                       ),
-                      Focus(
-                        onFocusChange: (hasFocus) {
-                          if (!hasFocus) {
-                            setState(() {});
-                          } else {
-                            setState(() {});
-                          }
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: _nodeText1.hasFocus
-                                  ? AppPallete.gradient2
-                                  : AppPallete.borderColor,
-                              width: 3,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Stack(
-                            children: [
-                              QuillEditor.basic(
-                                focusNode: _nodeText1,
-                                configurations: QuillEditorConfigurations(
-                                  controller: _controller,
-                                  customStyles: const DefaultStyles(
-                                    placeHolder: DefaultListBlockStyle(
-                                        TextStyle(
-                                          fontSize: 16.2,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey,
-                                        ),
-                                        VerticalSpacing(0, 0),
-                                        VerticalSpacing(0, 0),
-                                        null,
-                                        null),
-                                  ),
-                                  placeholder: 'Blog Content',
-                                  readOnly: false,
-                                  padding: const EdgeInsets.all(25),
-                                  keyboardAppearance: Brightness.dark,
-                                  minHeight: 200,
-                                  sharedConfigurations:
-                                      const QuillSharedConfigurations(
-                                    locale: Locale('de'),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      QuillRichText(
+                        controller: _controller,
+                        textNode: _textNode,
                       ),
                     ],
                   ),
