@@ -78,4 +78,38 @@ class BlogRepositoryImpl implements BlogRepository {
       return left(Failure(e.excMessage));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> updateBlog({
+    required String id,
+    required String imageUrl,
+    required File? image,
+    required String title,
+    required String content,
+    required String posterId,
+    required List<String> topics,
+  }) async {
+    try {
+      BlogModel blogModel = BlogModel(
+        id: id,
+        posterId: posterId,
+        title: title,
+        content: content,
+        imageUrl: imageUrl,
+        topics: topics,
+        updatedAt: DateTime.now(),
+      );
+      if (image != null) {
+        final imageUrl = await blogRemoteDataResource.uploadBlogImage(
+          image: image,
+          blog: blogModel,
+        );
+        blogModel = blogModel.copyWith(imageUrl: imageUrl);
+      }
+      final updateMessage = await blogRemoteDataResource.updateBlog(blogModel);
+      return right(updateMessage);
+    } on ServerExceptions catch (e) {
+      return left(Failure(e.excMessage));
+    }
+  }
 }

@@ -41,6 +41,10 @@ class _BlogViewerPageState extends State<BlogViewerPage> {
       appBar: AppBar(
         actions: [
           IconButton(
+            onPressed: () => context.go('/editblog', extra: widget.blog),
+            icon: Icon(MdiIcons.pen),
+          ),
+          IconButton(
             onPressed: () {
               context.read<BlogBloc>().add(BlogDelete(blogId: widget.blog.id));
             },
@@ -108,8 +112,6 @@ class _BlogViewerPageState extends State<BlogViewerPage> {
                               image: DecorationImage(
                                 image: imageProvider,
                                 fit: BoxFit.cover,
-                                colorFilter: const ColorFilter.mode(
-                                    Colors.red, BlendMode.colorBurn),
                               ),
                             ),
                           );

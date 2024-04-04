@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_blog_app/core/error/exception.dart';
 import 'package:flutter_blog_app/foundation/model/blog_model/blog_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 abstract interface class BlogRemoteDataResource {
   Future<BlogModel> uploadBlog(BlogModel blog);
@@ -11,6 +12,7 @@ abstract interface class BlogRemoteDataResource {
   });
   Future<List<BlogModel>> getAllBlogs();
   Future<String> deleteBlog(String blogId);
+  Future<String> updateBlog(BlogModel blog);
 }
 
 class BlogRemoteDataResourceImlp implements BlogRemoteDataResource {
@@ -41,8 +43,13 @@ class BlogRemoteDataResourceImlp implements BlogRemoteDataResource {
     required BlogModel blog,
   }) async {
     try {
-      await supabaseClient.storage.from('blog_images').upload(blog.id, image);
-      return supabaseClient.storage.from('blog_images').getPublicUrl(blog.id);
+      final String blogImageName = '${blog.title}_${Uuid().v1()}';
+      await supabaseClient.storage
+          .from('blog_images')
+          .upload(blogImageName, image);
+      return supabaseClient.storage
+          .from('blog_images')
+          .getPublicUrl(blogImageName);
     } on StorageException catch (e) {
       throw ServerExceptions(e.message);
     } catch (e) {
@@ -53,8 +60,10 @@ class BlogRemoteDataResourceImlp implements BlogRemoteDataResource {
   @override
   Future<List<BlogModel>> getAllBlogs() async {
     try {
-      final blogList =
-          await supabaseClient.from('blogs').select('*, profiles (name)');
+      final blogList = await supabaseClient
+          .from('blogs')
+          .select('*, profiles (name)')
+          .order('updated_at', ascending: false);
       return blogList
           .map((blog) => BlogModel.fromJson(blog).copyWith(
                 posterName: blog['profiles']['name'],
@@ -75,6 +84,21 @@ class BlogRemoteDataResourceImlp implements BlogRemoteDataResource {
     } on PostgrestException catch (e) {
       throw ServerExceptions(e.message);
     } catch (e) {
+      throw ServerExceptions(e.toString());
+    }
+  }
+
+  @override
+  Future<String> updateBlog(BlogModel blog) async {
+    try {
+      await supabaseClient
+          .from('blogs')
+          .update(blog.toJsonUpdate())
+          .eq('id', blog.id);
+      return 'Updated Success!!';
+    } on PostgrestException catch (e) {
+      throw ServerExceptions(e.message);
+    } on ServerExceptions catch (e) {
       throw ServerExceptions(e.toString());
     }
   }

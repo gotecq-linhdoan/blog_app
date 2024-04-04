@@ -29,7 +29,7 @@ KeyboardActionsConfig defaultCustomKeyboardConfig(
                               onPressed: () {
                                 final currentJson =
                                     controller.document.toDelta().toJson();
-                                currentJson.add({'insert': '@\n'});
+                                currentJson.add({'insert': '@ \n'});
                                 controller.document =
                                     Document.fromJson(currentJson);
                               }),

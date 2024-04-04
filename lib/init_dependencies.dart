@@ -15,6 +15,7 @@ import 'package:flutter_blog_app/foundation/domain/blog_repository_impl/blog_rep
 import 'package:flutter_blog_app/foundation/repositories/blog_repository/blog_repository.dart';
 import 'package:flutter_blog_app/foundation/usecase/blog_usecase/delete_blog.dart';
 import 'package:flutter_blog_app/foundation/usecase/blog_usecase/get_all_blog.dart';
+import 'package:flutter_blog_app/foundation/usecase/blog_usecase/update_blog.dart';
 import 'package:flutter_blog_app/foundation/usecase/blog_usecase/upload_blog.dart';
 import 'package:flutter_blog_app/features/presentation/blog_bloc/blog_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -82,11 +83,17 @@ void _initBlog() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => UpdateBlog(
+        serviceLocator(),
+      ),
+    )
     ..registerLazySingleton(
       () => BlogBloc(
         uploadBlog: serviceLocator(),
         getAllBlogs: serviceLocator(),
         deleteBlog: serviceLocator(),
+        updateBlog: serviceLocator(),
       ),
     );
 }

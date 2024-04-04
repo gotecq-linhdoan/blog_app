@@ -16,4 +16,13 @@ abstract interface class BlogRepository {
   Future<Either<Failure, String>> deleteBlog({
     required String blogId,
   });
+  Future<Either<Failure, String>> updateBlog({
+    required String id,
+    required String imageUrl,
+    required File? image,
+    required String title,
+    required String content,
+    required String posterId,
+    required List<String> topics,
+  });
 }

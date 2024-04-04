@@ -65,7 +65,6 @@ class _QuillRichTextState extends State<QuillRichText> {
       var _isRTL = intl.Bidi.detectRtlDirectionality(text);
       var style = widget.controller.getSelectionStyle();
       var attribute = style.attributes[Attribute.align.key];
-      // print(attribute);
       if (_isEditorLTR) {
         if (_isEditorLTR != !_isRTL) {
           if (_isRTL) {
@@ -182,17 +181,17 @@ class _QuillRichTextState extends State<QuillRichText> {
 
   void _onTapOverLaySuggestionItem(String value, {String? userId}) {
     var _lastHashTagIndex = lastHashTagIndex;
-    widget.controller!.replaceText(
+    widget.controller.replaceText(
         _lastHashTagIndex!,
-        widget.controller!.selection.extentOffset - _lastHashTagIndex,
+        widget.controller.selection.extentOffset - _lastHashTagIndex,
         value,
         null);
-    widget.controller!.updateSelection(
+    widget.controller.updateSelection(
         TextSelection(
             baseOffset: _lastHashTagIndex - 1,
-            extentOffset: widget.controller!.selection.extentOffset +
+            extentOffset: widget.controller.selection.extentOffset +
                 (value.length -
-                    (widget.controller!.selection.extentOffset -
+                    (widget.controller.selection.extentOffset -
                         _lastHashTagIndex))),
         ChangeSource.local);
     if (_taggingCharector == '#') {
@@ -208,9 +207,10 @@ class _QuillRichTextState extends State<QuillRichText> {
       widget.controller.moveCursorToEnd();
     });
     lastHashTagIndex = -1;
-    widget.controller!.document
-        .insert(widget.controller!.selection.extentOffset, ' ');
-    Future.delayed(Duration(seconds: 1)).then((value) => _removeOverLay());
+    widget.controller.document
+        .insert(widget.controller.selection.extentOffset, ' ');
+    Future.delayed(const Duration(seconds: 1))
+        .then((value) => _removeOverLay());
     atMentionSearchList.value = <AtMentionSearchResponseBean>[];
   }
 
@@ -332,13 +332,13 @@ class _QuillRichTextState extends State<QuillRichText> {
     return KeyboardListener(
       focusNode: FocusNode(),
       child: Focus(
-        onFocusChange: (hasFocus) {
-          if (!hasFocus) {
-            setState(() {});
-          } else {
-            setState(() {});
-          }
-        },
+        // onFocusChange: (hasFocus) {
+        //   if (!hasFocus) {
+        //     setState(() {});
+        //   } else {
+        //     setState(() {});
+        //   }
+        // },
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(

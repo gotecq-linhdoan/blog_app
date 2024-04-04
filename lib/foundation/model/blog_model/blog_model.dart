@@ -24,6 +24,16 @@ class BlogModel extends Blog {
     };
   }
 
+  Map<String, dynamic> toJsonUpdate() {
+    return <String, dynamic>{
+      'title': title,
+      'content': content,
+      'image_url': imageUrl,
+      'topics': topics,
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
   factory BlogModel.fromJson(Map<String, dynamic> map) {
     return BlogModel(
       id: map['id'] as String,
