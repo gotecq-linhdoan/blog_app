@@ -16,6 +16,7 @@ class UploadBlog implements UseCase<Blog, UploadBlogParams> {
       image: params.image,
       title: params.title,
       content: params.content,
+      contentDelta: params.contentDelta,
       posterId: params.posterId,
       topics: params.topics,
     );
@@ -26,12 +27,14 @@ class UploadBlogParams {
   final String posterId;
   final String title;
   final String content;
+  final String contentDelta;
   final File image;
   final List<String> topics;
 
   UploadBlogParams({
     required this.posterId,
     required this.title,
+    required this.contentDelta,
     required this.content,
     required this.image,
     required this.topics,

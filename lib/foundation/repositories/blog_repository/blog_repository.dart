@@ -9,6 +9,7 @@ abstract interface class BlogRepository {
     required File image,
     required String title,
     required String content,
+    required String contentDelta,
     required String posterId,
     required List<String> topics,
   });
@@ -22,6 +23,7 @@ abstract interface class BlogRepository {
     required File? image,
     required String title,
     required String content,
+    required String contentDelta,
     required String posterId,
     required List<String> topics,
   });

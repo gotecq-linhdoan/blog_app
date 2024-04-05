@@ -1,7 +1,7 @@
 import 'package:flutter_blog_app/foundation/model/blog_model/blog_model.dart';
 import 'package:hive/hive.dart';
 
-abstract interface class BlogLocalDataSource {
+abstract class BlogLocalDataSource {
   void uploadLocalBlogs({required List<BlogModel> blogs});
   List<BlogModel> loadBlogs();
 }

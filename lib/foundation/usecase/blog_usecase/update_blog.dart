@@ -17,6 +17,7 @@ class UpdateBlog implements UseCase<String, UpdateBlogParams> {
       imageUrl: params.imageUrl,
       title: params.title,
       content: params.content,
+      contentDelta: params.contentDelta,
       posterId: params.posterId,
       topics: params.topics,
     );
@@ -29,6 +30,7 @@ class UpdateBlogParams {
   final String posterId;
   final String title;
   final String content;
+  final String contentDelta;
   final File? image;
   final List<String> topics;
 
@@ -38,6 +40,7 @@ class UpdateBlogParams {
     required this.posterId,
     required this.title,
     required this.content,
+    required this.contentDelta,
     required this.image,
     required this.topics,
   });

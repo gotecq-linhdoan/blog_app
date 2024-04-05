@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -54,8 +55,8 @@ class _EditBlogPageState extends State<EditBlogPage> {
   void initState() {
     titleController.text = widget.blog.title;
     selectedTopics = widget.blog.topics;
-    final delta = HtmlToDeltaConverter.htmlToDelta(widget.blog.content);
-    _controller.document = Document.fromDelta(delta);
+    _controller.document =
+        Document.fromJson(jsonDecode(widget.blog.contentDelta));
     super.initState();
   }
 
@@ -81,6 +82,7 @@ class _EditBlogPageState extends State<EditBlogPage> {
                           posterId: widget.blog.id,
                           title: titleController.text.trim(),
                           content: converter.convert(),
+                          contentDelta: jsonEncode(deltaJson),
                           image: image,
                           topics: selectedTopics),
                     );

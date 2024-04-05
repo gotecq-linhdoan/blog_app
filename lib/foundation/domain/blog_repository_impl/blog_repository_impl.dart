@@ -26,6 +26,7 @@ class BlogRepositoryImpl implements BlogRepository {
     required File image,
     required String title,
     required String content,
+    required String contentDelta,
     required String posterId,
     required List<String> topics,
   }) async {
@@ -37,6 +38,7 @@ class BlogRepositoryImpl implements BlogRepository {
         id: const Uuid().v1(),
         posterId: posterId,
         title: title,
+        contentDelta: contentDelta,
         content: content,
         imageUrl: '',
         topics: topics,
@@ -86,6 +88,7 @@ class BlogRepositoryImpl implements BlogRepository {
     required File? image,
     required String title,
     required String content,
+    required String contentDelta,
     required String posterId,
     required List<String> topics,
   }) async {
@@ -94,6 +97,7 @@ class BlogRepositoryImpl implements BlogRepository {
         id: id,
         posterId: posterId,
         title: title,
+        contentDelta: contentDelta,
         content: content,
         imageUrl: imageUrl,
         topics: topics,

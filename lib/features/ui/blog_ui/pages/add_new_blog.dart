@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -74,6 +75,7 @@ class _NewBlogPageState extends State<NewBlogPage> {
                           posterId: posterId,
                           title: titleController.text.trim(),
                           content: converter.convert(),
+                          contentDelta: jsonEncode(deltaJson),
                           image: image!,
                           topics: selectedTopics),
                     );

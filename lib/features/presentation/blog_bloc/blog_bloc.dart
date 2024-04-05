@@ -32,6 +32,7 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
       final res = await _uploadBlog(UploadBlogParams(
         posterId: event.posterId,
         title: event.title,
+        contentDelta: event.contentDelta,
         content: event.content,
         image: event.image,
         topics: event.topics,
@@ -47,6 +48,7 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
           id: event.id,
           imageUrl: event.imageUrl,
           posterId: event.posterId,
+          contentDelta: event.contentDelta,
           title: event.title,
           content: event.content,
           image: event.image,

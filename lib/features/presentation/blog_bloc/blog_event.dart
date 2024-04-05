@@ -7,6 +7,7 @@ final class BlogUpload extends BlogEvent {
   final String posterId;
   final String title;
   final String content;
+  final String contentDelta;
   final File image;
   final List<String> topics;
 
@@ -14,6 +15,7 @@ final class BlogUpload extends BlogEvent {
     required this.posterId,
     required this.title,
     required this.content,
+    required this.contentDelta,
     required this.image,
     required this.topics,
   });
@@ -25,6 +27,7 @@ final class BlogUpdate extends BlogEvent {
   final String posterId;
   final String title;
   final String content;
+  final String contentDelta;
   final File? image;
   final List<String> topics;
 
@@ -34,6 +37,7 @@ final class BlogUpdate extends BlogEvent {
     required this.posterId,
     required this.title,
     required this.content,
+    required this.contentDelta,
     required this.image,
     required this.topics,
   });

@@ -4,6 +4,7 @@ class Blog {
   final String posterId;
   final String title;
   final String content;
+  final String contentDelta;
   final String imageUrl;
   final List<String> topics;
   final DateTime updatedAt;
@@ -14,6 +15,7 @@ class Blog {
     required this.posterId,
     required this.title,
     required this.content,
+    required this.contentDelta,
     required this.imageUrl,
     required this.topics,
     required this.updatedAt,
