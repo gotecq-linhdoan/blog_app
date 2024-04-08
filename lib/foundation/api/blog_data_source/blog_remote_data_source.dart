@@ -43,7 +43,7 @@ class BlogRemoteDataResourceImlp implements BlogRemoteDataResource {
     required BlogModel blog,
   }) async {
     try {
-      final String blogImageName = '${blog.title}_${Uuid().v1()}';
+      final String blogImageName = '${blog.title}_${const Uuid().v1()}';
       await supabaseClient.storage
           .from('blog_images')
           .upload(blogImageName, image);

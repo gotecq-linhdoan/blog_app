@@ -103,6 +103,7 @@ class _NewBlogPageState extends State<NewBlogPage> {
               _controller,
               _textNode,
             ),
+            autoScroll: true,
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -128,10 +129,11 @@ class _NewBlogPageState extends State<NewBlogPage> {
                               onTap: selectImage,
                               child: DottedBorder(
                                 color: AppPallete.borderColor,
-                                dashPattern: const [10, 4],
+                                dashPattern: const [10, 8],
                                 radius: const Radius.circular(10),
                                 borderType: BorderType.RRect,
                                 strokeCap: StrokeCap.round,
+                                strokeWidth: 3,
                                 child: const SizedBox(
                                   height: 150,
                                   width: double.infinity,
@@ -168,7 +170,10 @@ class _NewBlogPageState extends State<NewBlogPage> {
                           ]
                               .map(
                                 (e) => Padding(
-                                  padding: const EdgeInsets.all(5.0),
+                                  padding: const EdgeInsets.all(5.0).copyWith(
+                                    left: 0,
+                                    right: 10,
+                                  ),
                                   child: GestureDetector(
                                     onTap: () {
                                       if (selectedTopics.contains(e)) {
@@ -184,11 +189,12 @@ class _NewBlogPageState extends State<NewBlogPage> {
                                           ? const MaterialStatePropertyAll(
                                               AppPallete.gradient1)
                                           : null,
-                                      side: selectedTopics.contains(e)
-                                          ? null
-                                          : const BorderSide(
-                                              color: AppPallete.borderColor,
-                                            ),
+                                      side: BorderSide(
+                                        color: selectedTopics.contains(e)
+                                            ? AppPallete.gradient1
+                                            : AppPallete.borderColor,
+                                        width: 3,
+                                      ),
                                     ),
                                   ),
                                 ),

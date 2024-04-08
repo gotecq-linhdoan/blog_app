@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blog_app/core/common/widget/loader.dart';
 import 'package:flutter_blog_app/core/theme/app_pallete.dart';
-import 'package:flutter_blog_app/core/util/convert_html_delta.dart';
 import 'package:flutter_blog_app/core/util/delta_hex_color_transform.dart';
 import 'package:flutter_blog_app/core/util/keyboard_action.dart';
 import 'package:flutter_blog_app/core/util/pick_image.dart';
@@ -110,6 +109,7 @@ class _EditBlogPageState extends State<EditBlogPage> {
               _controller,
               _textNode,
             ),
+            autoScroll: true,
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -174,7 +174,10 @@ class _EditBlogPageState extends State<EditBlogPage> {
                           ]
                               .map(
                                 (e) => Padding(
-                                  padding: const EdgeInsets.all(5.0),
+                                  padding: const EdgeInsets.all(5.0).copyWith(
+                                    left: 0,
+                                    right: 10,
+                                  ),
                                   child: GestureDetector(
                                     onTap: () {
                                       if (selectedTopics.contains(e)) {
@@ -190,11 +193,12 @@ class _EditBlogPageState extends State<EditBlogPage> {
                                           ? const MaterialStatePropertyAll(
                                               AppPallete.gradient1)
                                           : null,
-                                      side: selectedTopics.contains(e)
-                                          ? null
-                                          : const BorderSide(
-                                              color: AppPallete.borderColor,
-                                            ),
+                                      side: BorderSide(
+                                        color: selectedTopics.contains(e)
+                                            ? AppPallete.gradient1
+                                            : AppPallete.borderColor,
+                                        width: 3,
+                                      ),
                                     ),
                                   ),
                                 ),

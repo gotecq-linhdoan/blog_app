@@ -14,6 +14,7 @@ abstract interface class AuthRemoteDataSource {
     required String password,
   });
   Future<UserModel?> getCurrentUserData();
+  Future<List<UserModel>> getAllUserData();
   Future<String> signOutUser();
 }
 
@@ -95,6 +96,16 @@ class AuthRemoteDataSourceIpm implements AuthRemoteDataSource {
       return 'User Signed Out Success!';
     } on AuthException catch (e) {
       throw ServerExceptions(e.message);
+    }
+  }
+
+  @override
+  Future<List<UserModel>> getAllUserData() async {
+    try {
+      final userList = await supabaseClient.from('profiles').select();
+      return userList.map((blog) => UserModel.fromJson(blog)).toList();
+    } catch (e) {
+      throw ServerExceptions(e.toString());
     }
   }
 }

@@ -1,9 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'dart:io' as io show Directory, File;
+import 'package:desktop_drop/desktop_drop.dart' show DropTarget;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_blog_app/features/presentation/auth_bloc/auth_bloc.dart';
+import 'package:flutter_blog_app/foundation/model/auth_model/user_model.dart';
+import 'package:flutter_quill_extensions/embeds/widgets/image.dart'
+    show getImageProviderByImageSource, imageFileExtensions;
+import 'package:flutter_quill/extensions.dart' show isAndroid, isIOS, isWeb;
 import 'package:flutter_blog_app/core/theme/app_pallete.dart';
-import 'package:flutter_blog_app/foundation/model/blog_model/fake_user.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:path/path.dart' as path;
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:intl/intl.dart' as intl;
+import '../../../../core/extension/scaffold_messenger.dart';
 
 class QuillRichText extends StatefulWidget {
   final QuillController controller;
@@ -23,30 +33,11 @@ class _QuillRichTextState extends State<QuillRichText> {
   String? _taggingCharector = '#';
   OverlayEntry? _hashTagOverlayEntry;
   int? lastHashTagIndex = -1;
-  ValueNotifier<List<AtMentionSearchResponseBean>> atMentionSearchList =
-      ValueNotifier([]);
+  ValueNotifier<List<UserModel>> atMentionSearchList = ValueNotifier([]);
 
-  final _tempAtMentionList = [
-    AtMentionSearchResponseBean(
-        firstName: 'Tom', userName: 'tom123', id: '80935823948569'),
-    AtMentionSearchResponseBean(
-        firstName: 'Jeck', userName: 'jack', id: '80935823948569'),
-    AtMentionSearchResponseBean(
-        firstName: 'Mical', userName: 'mical_mishra', id: '80935823948569'),
-    AtMentionSearchResponseBean(
-        firstName: 'Obama', userName: 'obama_fans', id: '80935823948569'),
-    AtMentionSearchResponseBean(
-        firstName: 'Putin', userName: 'putin', id: '80935823948569'),
-    AtMentionSearchResponseBean(
-        firstName: 'Modi', userName: 'modi', id: '80935823948569'),
-    AtMentionSearchResponseBean(
-        firstName: 'Targen', userName: 'targen', id: '80935823948569'),
-    AtMentionSearchResponseBean(
-        firstName: 'Tommy', userName: 'tomi_', id: '80935823948569'),
-  ];
+  var _tempAtMentionList = <UserModel>[];
 
   Future<void> _getAtMentionSearchList(String? query) async {
-    /// you can call api here to get the list
     try {
       atMentionSearchList.value = _tempAtMentionList;
     } catch (e) {
@@ -94,9 +85,9 @@ class _QuillRichTextState extends State<QuillRichText> {
             var validCharacters = RegExp(r'^[a-zA-Z]+$');
             if (validCharacters.hasMatch(text)) {
               _isEditorLTR = true;
-              widget.controller!
+              widget.controller
                   .formatSelection(Attribute.clone(Attribute.align, null));
-              widget.controller!.formatSelection(Attribute.leftAlignment);
+              widget.controller.formatSelection(Attribute.leftAlignment);
               _refreshScreen();
             }
           }
@@ -172,7 +163,7 @@ class _QuillRichTextState extends State<QuillRichText> {
       if (_hashTagOverlayEntry != null && _hashTagOverlayEntry!.mounted) {
         _hashTagOverlayEntry!.remove();
         _hashTagOverlayEntry = null;
-        atMentionSearchList.value = <AtMentionSearchResponseBean>[];
+        atMentionSearchList.value = <UserModel>[];
       }
     } catch (e) {
       print('Exception in removing overlay :$e');
@@ -211,7 +202,7 @@ class _QuillRichTextState extends State<QuillRichText> {
         .insert(widget.controller.selection.extentOffset, ' ');
     Future.delayed(const Duration(seconds: 1))
         .then((value) => _removeOverLay());
-    atMentionSearchList.value = <AtMentionSearchResponseBean>[];
+    atMentionSearchList.value = <UserModel>[];
   }
 
   OverlayEntry _createHashTagOverlayEntry() {
@@ -226,8 +217,7 @@ class _QuillRichTextState extends State<QuillRichText> {
                       const BoxConstraints(maxHeight: 150, minHeight: 50),
                   child: ValueListenableBuilder(
                     valueListenable: atMentionSearchList,
-                    builder: (BuildContext context,
-                        List<AtMentionSearchResponseBean> value,
+                    builder: (BuildContext context, List<UserModel> value,
                         Widget? child) {
                       return ListView.builder(
                         padding: EdgeInsets.zero,
@@ -237,55 +227,23 @@ class _QuillRichTextState extends State<QuillRichText> {
                           var data = value[index];
                           return GestureDetector(
                             onTap: () {
-                              _onTapOverLaySuggestionItem(data.userName!,
-                                  userId: data.userName);
+                              _onTapOverLaySuggestionItem(data.name,
+                                  userId: data.id);
                             },
                             child: ListTile(
-                              leading: CachedNetworkImage(
-                                imageUrl: data.pictureLink ?? '',
-                                fit: BoxFit.cover,
-                                imageBuilder: (context, imageProvider) =>
-                                    Container(
-                                  height: 30,
-                                  width: 30,
-                                  decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                          image: imageProvider,
-                                          fit: BoxFit.cover),
-                                      shape: BoxShape.circle),
-                                ),
-                                placeholder: (context, url) => Container(
-                                  height: 30,
-                                  width: 30,
-                                  decoration: const BoxDecoration(
-                                      color: Colors.grey,
-                                      shape: BoxShape.circle),
-                                ),
-                                errorWidget: (context, url, error) => Container(
-                                  decoration: const BoxDecoration(
-                                      color: Colors.grey,
-                                      shape: BoxShape.circle),
-                                  width: 30,
-                                  height: 30,
-                                  child: const Icon(
-                                    Icons.image_outlined,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
                               title: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    data.firstName!,
-                                    style: TextStyle(fontSize: 14),
+                                    data.email,
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                   const SizedBox(
                                     height: 3,
                                   ),
                                   Text(
-                                    '@${data.userName}',
+                                    '@${data.name}',
                                     style: const TextStyle(
                                       fontSize: 10,
                                       color: Colors.grey,
@@ -324,6 +282,7 @@ class _QuillRichTextState extends State<QuillRichText> {
   void initState() {
     widget.controller.addListener(editorListener);
     widget.textNode.addListener(_advanceTextFocusListener);
+    context.read<AuthBloc>().add(GetAllUser());
     super.initState();
   }
 
@@ -332,13 +291,9 @@ class _QuillRichTextState extends State<QuillRichText> {
     return KeyboardListener(
       focusNode: FocusNode(),
       child: Focus(
-        // onFocusChange: (hasFocus) {
-        //   if (!hasFocus) {
-        //     setState(() {});
-        //   } else {
-        //     setState(() {});
-        //   }
-        // },
+        onFocusChange: (hasFocus) {
+          setState(() {});
+        },
         child: Container(
           decoration: BoxDecoration(
             border: Border.all(
@@ -367,6 +322,95 @@ class _QuillRichTextState extends State<QuillRichText> {
                         null,
                         null),
                   ),
+                  onImagePaste: (imageBytes) async {
+                    if (isWeb()) {
+                      return null;
+                    }
+                    final newFileName =
+                        '${DateTime.now().toIso8601String()}.png';
+                    final newPath = path.join(
+                      io.Directory.systemTemp.path,
+                      newFileName,
+                    );
+                    final file = await io.File(
+                      newPath,
+                    ).writeAsBytes(imageBytes, flush: true);
+                    return file.path;
+                  },
+                  onGifPaste: (gifBytes) async {
+                    if (isWeb()) {
+                      return null;
+                    }
+                    final newFileName =
+                        '${DateTime.now().toIso8601String()}.gif';
+                    final newPath = path.join(
+                      io.Directory.systemTemp.path,
+                      newFileName,
+                    );
+                    final file = await io.File(
+                      newPath,
+                    ).writeAsBytes(gifBytes, flush: true);
+                    return file.path;
+                  },
+                  embedBuilders: [
+                    ...(isWeb()
+                        ? FlutterQuillEmbeds.editorWebBuilders()
+                        : FlutterQuillEmbeds.editorBuilders(
+                            imageEmbedConfigurations:
+                                QuillEditorImageEmbedConfigurations(
+                              imageErrorWidgetBuilder:
+                                  (context, error, stackTrace) {
+                                return Text(
+                                  'Error while loading an image: ${error.toString()}',
+                                );
+                              },
+                              imageProviderBuilder: (context, imageUrl) {
+                                if (isAndroid(supportWeb: false) ||
+                                    isIOS(supportWeb: false) ||
+                                    isWeb()) {
+                                  if (isHttpBasedUrl(imageUrl)) {
+                                    return CachedNetworkImageProvider(
+                                      imageUrl,
+                                    );
+                                  }
+                                }
+                                return getImageProviderByImageSource(
+                                  imageUrl,
+                                  imageProviderBuilder: null,
+                                  context: context,
+                                  assetsPrefix:
+                                      QuillSharedExtensionsConfigurations.get(
+                                              context: context)
+                                          .assetsPrefix,
+                                );
+                              },
+                            ),
+                          )),
+                  ],
+                  builder: (context, rawEditor) {
+                    if (isIOS(supportWeb: false)) {
+                      return rawEditor;
+                    }
+                    return DropTarget(
+                      onDragDone: (details) {
+                        final scaffoldMessenger = ScaffoldMessenger.of(context);
+                        final file = details.files.first;
+                        final isSupported =
+                            imageFileExtensions.any(file.name.endsWith);
+                        if (!isSupported) {
+                          scaffoldMessenger.showText(
+                            'Only images are supported right now: ${file.mimeType}, ${file.name}, ${file.path}, $imageFileExtensions',
+                          );
+                          return;
+                        }
+                        context.requireQuillController.insertImageBlock(
+                          imageSource: file.path,
+                        );
+                        scaffoldMessenger.showText('Image is inserted.');
+                      },
+                      child: rawEditor,
+                    );
+                  },
                   placeholder: 'Blog Content',
                   readOnly: false,
                   padding: const EdgeInsets.all(25),

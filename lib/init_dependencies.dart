@@ -4,6 +4,7 @@ import 'package:flutter_blog_app/core/secret/app_secret.dart';
 import 'package:flutter_blog_app/foundation/api/auth_data_source/auth_remote_data_source.dart';
 import 'package:flutter_blog_app/foundation/domain/auth_repository_impl/auth_repository_impl.dart';
 import 'package:flutter_blog_app/foundation/repositories/auth_repository/auth_repository.dart';
+import 'package:flutter_blog_app/foundation/usecase/auth_usecase/all_user.dart';
 import 'package:flutter_blog_app/foundation/usecase/auth_usecase/current_user.dart';
 import 'package:flutter_blog_app/foundation/usecase/auth_usecase/sign_out.dart';
 import 'package:flutter_blog_app/foundation/usecase/auth_usecase/user_sign_in.dart';
@@ -131,6 +132,11 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => AllUser(
+        serviceLocator(),
+      ),
+    )
     ..registerFactory(() => User)
     ..registerLazySingleton(
       () => AuthBloc(
@@ -139,6 +145,7 @@ void _initAuth() {
         currentUser: serviceLocator(),
         appUserCubit: serviceLocator(),
         userSignOut: serviceLocator(),
+        allUser: serviceLocator(),
       ),
     );
 }

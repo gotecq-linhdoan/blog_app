@@ -14,6 +14,11 @@ final class AuthSuccess extends AuthState {
   const AuthSuccess(this.user);
 }
 
+final class GetAllUserSuccess extends AuthState {
+  final List<User> userList;
+  const GetAllUserSuccess(this.userList);
+}
+
 final class AuthSignOutSuccess extends AuthState {}
 
 final class AuthFailure extends AuthState {

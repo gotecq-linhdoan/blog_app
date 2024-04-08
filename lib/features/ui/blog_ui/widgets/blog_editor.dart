@@ -13,6 +13,7 @@ class BlogEditor extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
       ),
+      autofocus: false,
       maxLines: null,
       validator: (value) {
         if (value!.isEmpty) {
